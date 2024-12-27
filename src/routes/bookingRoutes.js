@@ -5,7 +5,8 @@ const Booking = require('../models/Booking');
 // Get all bookings
 router.get('/', async (req, res) => {
   try {
-    const bookings = await Booking.find({ userId: req.query.userId });
+    const query = req.query.userId ? { userId: req.query.userId } : {};
+    const bookings = await Booking.find(query).sort({ createdAt: -1 });
     res.json(bookings);
   } catch (error) {
     res.status(500).json({ message: error.message });

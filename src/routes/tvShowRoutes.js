@@ -22,6 +22,19 @@ router.get('/category/:category', async (req, res) => {
   }
 });
 
+// Get a single TV show by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const show = await TVShow.findById(req.params.id);
+    if (!show) {
+      return res.status(404).json({ message: 'TV show not found' });
+    }
+    res.json(show);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Add a new TV show
 router.post('/', async (req, res) => {
   const show = new TVShow({
@@ -42,21 +55,17 @@ router.post('/', async (req, res) => {
 });
 
 // Update a TV show
-router.patch('/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
-    const show = await TVShow.findById(req.params.id);
-    if (show == null) {
+    const show = await TVShow.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true, runValidators: true }
+    );
+    if (!show) {
       return res.status(404).json({ message: 'TV show not found' });
     }
-
-    Object.keys(req.body).forEach(key => {
-      if (req.body[key] != null) {
-        show[key] = req.body[key];
-      }
-    });
-
-    const updatedShow = await show.save();
-    res.json(updatedShow);
+    res.json(show);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -65,12 +74,10 @@ router.patch('/:id', async (req, res) => {
 // Delete a TV show
 router.delete('/:id', async (req, res) => {
   try {
-    const show = await TVShow.findById(req.params.id);
-    if (show == null) {
+    const result = await TVShow.findByIdAndDelete(req.params.id);
+    if (!result) {
       return res.status(404).json({ message: 'TV show not found' });
     }
-
-    await show.remove();
     res.json({ message: 'TV show deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });

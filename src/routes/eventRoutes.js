@@ -22,6 +22,19 @@ router.get('/category/:category', async (req, res) => {
   }
 });
 
+// Get a single event by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+    res.json(event);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Create a new event
 router.post('/', async (req, res) => {
   const event = new Event({
@@ -45,21 +58,17 @@ router.post('/', async (req, res) => {
 });
 
 // Update an event
-router.patch('/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
-    if (event == null) {
+    const event = await Event.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true, runValidators: true }
+    );
+    if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }
-
-    Object.keys(req.body).forEach(key => {
-      if (req.body[key] != null) {
-        event[key] = req.body[key];
-      }
-    });
-
-    const updatedEvent = await event.save();
-    res.json(updatedEvent);
+    res.json(event);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -68,12 +77,10 @@ router.patch('/:id', async (req, res) => {
 // Delete an event
 router.delete('/:id', async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
-    if (event == null) {
+    const result = await Event.findByIdAndDelete(req.params.id);
+    if (!result) {
       return res.status(404).json({ message: 'Event not found' });
     }
-
-    await event.remove();
     res.json({ message: 'Event deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });
