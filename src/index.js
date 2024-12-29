@@ -34,6 +34,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const eventRoutes = require('./routes/eventRoutes');
 const tvShowRoutes = require('./routes/tvShowRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
+const userRoutes = require('./routes/userRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
+
+// Mount routes directly without extra router
+app.use('/api/events', eventRoutes);
+app.use('/api/tv-shows', tvShowRoutes);
+app.use('/api/bookings', bookingRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // Basic health check endpoint
 app.get('/health', (req, res) => {
@@ -59,11 +68,6 @@ app.get('/ping', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
-
-// Use routes
-app.use('/api/events', eventRoutes);
-app.use('/api/tv-shows', tvShowRoutes);
-app.use('/api/bookings', bookingRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
