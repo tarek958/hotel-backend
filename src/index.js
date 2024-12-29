@@ -18,12 +18,10 @@ app.use((req, res, next) => {
 
 // CORS configuration
 app.use(cors({
-  origin: '*',
-  methods: '*',
-  allowedHeaders: '*',
-  exposedHeaders: '*',
-  credentials: true,
-  maxAge: 86400
+  origin: true, // Allow all origins
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+  credentials: true
 }));
 
 // Body parser middleware
@@ -44,6 +42,15 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
+// Basic ping endpoint
+app.get('/ping', (req, res) => {
+  res.json({ 
+    status: 'ok',
+    message: 'pong',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Basic health check endpoint
 app.get('/health', (req, res) => {
   const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -56,16 +63,6 @@ app.get('/health', (req, res) => {
       hostname: os.hostname(),
       networkInterfaces: os.networkInterfaces()
     }
-  });
-});
-
-// Test endpoint
-app.get('/ping', (req, res) => {
-  const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-  res.json({ 
-    message: 'pong',
-    clientIp: clientIp,
-    timestamp: new Date().toISOString()
   });
 });
 
